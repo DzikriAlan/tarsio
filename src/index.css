@@ -1658,3 +1658,12 @@ footer {
   .levelup-card h2 { font-size: 22px; }
   .profile-stats-row { grid-template-columns: 1fr 1fr; }
 }
+/* Markdown inline dari balasan Tarsy */
+.message-bubble code, .quest-result-body code, .quest-result-takeaway code {
+  font: 500 .92em 'DM Mono', monospace;
+  background: var(--brown-100);
+  border-radius: 5px;
+  padding: 1px 5px;
+}
+.message-bubble em, .quest-result-body em, .quest-result-takeaway em { font-style: italic; }
+.message-bubble strong, .quest-result-body strong { font-weight: 700; }

@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { useAuth } from '@/lib/auth';
 import { supabase, type Quest, type QuestQuestion, type QuestCategory } from '@/lib/supabase';
+import { Markdown } from '../lib/markdown';
 import { translate } from '@/lib/i18n';
 import { achievements, getLevel } from '@/lib/gamify';
 import type { Language, Mood } from '@/lib/types';
@@ -1002,7 +1003,7 @@ export function Dashboard() {
             <div className="chat-messages">
               {messages.map((item, index) => (
                 <div className={`message-row ${item.from}`} key={`${item.text}-${index}`}>
-                  <div className="message-bubble">{item.text}</div>
+                  <div className="message-bubble"><Markdown text={item.text} /></div>
                 </div>
               ))}
               {chatTyping && (
@@ -1169,10 +1170,10 @@ export function Dashboard() {
                 <div className="result-icon"><Sparkles size={28} /></div>
                 <span className="eyebrow">{t('pov.eyebrow')}</span>
                 <h2>{questResult.title}</h2>
-                <div className="quest-result-body">{questResult.body.split('\n\n').map((p, i) => <p key={i}>{p}</p>)}</div>
+                <div className="quest-result-body">{questResult.body.split('\n\n').map((p, i) => <p key={i}><Markdown text={p} /></p>)}</div>
                 <div className="quest-result-takeaway">
                   <strong>{t('quest.resultTakeaway')}</strong>
-                  <p>{questResult.takeaway}</p>
+                  <p><Markdown text={questResult.takeaway} /></p>
                 </div>
                 <div className="xp-earned-badge">{t('quest.xpEarned', { xp: activeQuest.xp_reward })}</div>
                 <button className="yellow-button full-button" onClick={completeQuest}>
