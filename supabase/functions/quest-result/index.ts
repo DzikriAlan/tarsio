@@ -1,10 +1,94 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { GoogleGenAI } from "npm:@google/genai";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Client-Info, Apikey",
 };
+
+const GEMINI_MODEL = Deno.env.get("GEMINI_MODEL") ?? "gemini-3.5-flash-lite";
+
+const RESULT_SCHEMA = {
+  type: "object",
+  properties: {
+    title: { type: "string" },
+    body: { type: "string" },
+    takeaway: { type: "string" },
+  },
+  required: ["title", "body", "takeaway"],
+};
+
+function buildPrompt(
+  questTitle: string,
+  answers: { question: string; answer: string }[],
+  lang: string
+): string {
+  const isId = lang === "id";
+  const transcript = answers
+    .map((a, i) => `${i + 1}. Q: ${a.question}\n   A: ${a.answer}`)
+    .join("\n");
+
+  const persona = isId
+    ? `Kamu adalah "Tarsy", teman refleksi diri di aplikasi Tarsio. Gaya bicaramu hangat, santai, personal, pakai bahasa Indonesia sehari-hari (boleh "kamu", "aku", "nggak"). Kamu bukan terapis: jangan mendiagnosis, jangan memberi saran medis, jangan menggurui.`
+    : `You are "Tarsy", a self-reflection companion in the Tarsio app. Your voice is warm, casual, and personal. You are not a therapist: never diagnose, never give medical advice, never lecture.`;
+
+  const task = isId
+    ? `Baca jawaban user di bawah dari misi "${questTitle}", lalu tulis refleksi "Tarsy POV" yang benar-benar spesifik ke jawaban mereka — bukan template umum.
+
+Aturan:
+- "title": 4-8 kata, puitis tapi membumi, tanpa tanda kutip.
+- "body": 2 paragraf, dipisah "\\n\\n". Tiap paragraf 2-4 kalimat. Kutip atau rujuk detail nyata dari jawaban mereka supaya terasa didengar. Validasi dulu, baru reframe.
+- "takeaway": 1-2 kalimat, satu langkah kecil dan konkret yang bisa dilakukan malam ini atau besok.
+- Bahasa Indonesia. Jangan sebut kamu AI atau model.`
+    : `Read the user's answers below from the quest "${questTitle}", then write a "Tarsy POV" reflection that is genuinely specific to their answers — not a generic template.
+
+Rules:
+- "title": 4-8 words, poetic but grounded, no quotation marks.
+- "body": 2 paragraphs separated by "\\n\\n". Each 2-4 sentences. Quote or reference real details from their answers so they feel heard. Validate first, then reframe.
+- "takeaway": 1-2 sentences, one small concrete step they can take tonight or tomorrow.
+- English. Never mention that you are an AI or a model.`;
+
+  return `${persona}\n\n${task}\n\n---\n${transcript}\n---`;
+}
+
+async function generateWithGemini(
+  questTitle: string,
+  answers: { question: string; answer: string }[],
+  lang: string
+): Promise<{ title: string; body: string; takeaway: string }> {
+  const apiKey = Deno.env.get("GEMINI_API_KEY");
+  if (!apiKey) throw new Error("GEMINI_API_KEY not set");
+
+  const ai = new GoogleGenAI({ apiKey });
+
+  const interaction = await ai.interactions.create({
+    model: GEMINI_MODEL,
+    input: buildPrompt(questTitle, answers, lang),
+    response_format: {
+      type: "text",
+      mime_type: "application/json",
+      schema: RESULT_SCHEMA,
+    },
+  });
+
+  const parsed = JSON.parse(interaction.output_text ?? "");
+  if (
+    typeof parsed?.title !== "string" ||
+    typeof parsed?.body !== "string" ||
+    typeof parsed?.takeaway !== "string" ||
+    !parsed.title.trim() ||
+    !parsed.body.trim()
+  ) {
+    throw new Error("Gemini returned an unusable payload");
+  }
+
+  return {
+    title: parsed.title.trim(),
+    body: parsed.body.trim(),
+    takeaway: parsed.takeaway.trim(),
+  };
+}
 
 function generateReflection(
   questTitle: string,
@@ -187,9 +271,19 @@ Deno.serve(async (req: Request) => {
         : quest.title_en
       : "Quest";
 
-    const result = generateReflection(questTitle, answers, lang || "id");
+    const language = lang || "id";
 
-    return new Response(JSON.stringify({ result }), {
+    let result: { title: string; body: string; takeaway: string };
+    let source = "gemini";
+    try {
+      result = await generateWithGemini(questTitle, answers, language);
+    } catch (err) {
+      console.error("Gemini generation failed, falling back to template:", err);
+      result = generateReflection(questTitle, answers, language);
+      source = "fallback";
+    }
+
+    return new Response(JSON.stringify({ result, source }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (err) {
