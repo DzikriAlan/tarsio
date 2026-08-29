@@ -1301,7 +1301,19 @@ footer {
 .quest-result-body {
   text-align: left;
   margin: 16px 0;
+  max-height: 168px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  padding-right: 8px;
 }
+.quest-result-body::-webkit-scrollbar { width: 6px; }
+.quest-result-body::-webkit-scrollbar-track { background: transparent; }
+.quest-result-body::-webkit-scrollbar-thumb {
+  background: var(--brown-100);
+  border-radius: 20px;
+}
+.quest-result-body::-webkit-scrollbar-thumb:hover { background: var(--brown-400); }
 .quest-result-body p {
   color: var(--brown-600);
   font-size: 13px;
