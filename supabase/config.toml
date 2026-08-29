@@ -1,2 +1,5 @@
 [functions.quest-result]
 verify_jwt = true
+
+[functions.tarsy-chat]
+verify_jwt = true
