@@ -332,23 +332,44 @@ export function Dashboard() {
       content: trimmed,
     });
 
-    const replies = [t('chat.reply1'), t('chat.reply2'), t('chat.reply3'), t('chat.reply4'), t('chat.reply5')];
-    const reply = replies[Math.floor(Math.random() * replies.length)];
-
     setChatTyping(true);
-    setTimeout(async () => {
-      setChatTyping(false);
-      setTarsyMood('happy');
-      setMessages((cur) => [...cur, { from: 'tarsy', text: reply }]);
-      await supabase.from('chat_messages').insert({
-        session_id: chatSessionId,
-        user_id: profile.id,
-        role: 'tarsy',
-        content: reply,
+
+    let reply: string;
+    try {
+      const { data: session } = await supabase.auth.getSession();
+      const token = session.session?.access_token;
+      const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/tarsy-chat`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          ...(import.meta.env.VITE_SUPABASE_ANON_KEY ? { apikey: import.meta.env.VITE_SUPABASE_ANON_KEY } : {}),
+        },
+        body: JSON.stringify({
+          message: trimmed,
+          history: messages.map((m) => ({ role: m.from === 'you' ? 'user' : 'tarsy', content: m.text })),
+          lang,
+        }),
       });
-      await supabase.from('chat_sessions').update({ last_message_at: new Date().toISOString() }).eq('id', chatSessionId);
-      setTimeout(() => setTarsyMood('idle'), 2000);
-    }, 1200);
+      const data = await res.json();
+      if (!data.reply) throw new Error('no reply');
+      reply = data.reply;
+    } catch {
+      const replies = [t('chat.reply1'), t('chat.reply2'), t('chat.reply3'), t('chat.reply4'), t('chat.reply5')];
+      reply = replies[Math.floor(Math.random() * replies.length)];
+    }
+
+    setChatTyping(false);
+    setTarsyMood('happy');
+    setMessages((cur) => [...cur, { from: 'tarsy', text: reply }]);
+    await supabase.from('chat_messages').insert({
+      session_id: chatSessionId,
+      user_id: profile.id,
+      role: 'tarsy',
+      content: reply,
+    });
+    await supabase.from('chat_sessions').update({ last_message_at: new Date().toISOString() }).eq('id', chatSessionId);
+    setTimeout(() => setTarsyMood('idle'), 2000);
   }
 
   async function upgradeToPremium() {
