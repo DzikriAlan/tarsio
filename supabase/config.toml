@@ -1,0 +1,2 @@
+[functions.quest-result]
+verify_jwt = true
