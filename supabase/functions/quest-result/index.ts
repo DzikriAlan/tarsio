@@ -36,17 +36,17 @@ function buildPrompt(
   const task = isId
     ? `Baca jawaban user di bawah dari misi "${questTitle}", lalu tulis refleksi "Tarsy POV" yang benar-benar spesifik ke jawaban mereka — bukan template umum.
 
-Aturan:
-- "title": 4-8 kata, puitis tapi membumi, tanpa tanda kutip.
-- "body": 2 paragraf, dipisah "\\n\\n". Tiap paragraf 2-4 kalimat. Kutip atau rujuk detail nyata dari jawaban mereka supaya terasa didengar. Validasi dulu, baru reframe.
-- "takeaway": 1-2 kalimat, satu langkah kecil dan konkret yang bisa dilakukan malam ini atau besok.
+Aturan (WAJIB singkat — ini kartu kecil, bukan artikel):
+- "title": maksimal 6 kata, tanpa tanda kutip.
+- "body": SATU paragraf saja, maksimal 3 kalimat pendek. Rujuk satu detail nyata dari jawaban mereka supaya terasa didengar, validasi, lalu reframe. Jangan bertele-tele.
+- "takeaway": SATU kalimat, langkah kecil yang konkret.
 - Bahasa Indonesia. Jangan sebut kamu AI atau model.`
     : `Read the user's answers below from the quest "${questTitle}", then write a "Tarsy POV" reflection that is genuinely specific to their answers — not a generic template.
 
-Rules:
-- "title": 4-8 words, poetic but grounded, no quotation marks.
-- "body": 2 paragraphs separated by "\\n\\n". Each 2-4 sentences. Quote or reference real details from their answers so they feel heard. Validate first, then reframe.
-- "takeaway": 1-2 sentences, one small concrete step they can take tonight or tomorrow.
+Rules (MUST be short — this is a small card, not an article):
+- "title": 6 words max, no quotation marks.
+- "body": ONE paragraph only, 3 short sentences max. Reference one real detail from their answers so they feel heard, validate, then reframe. Do not ramble.
+- "takeaway": ONE sentence, a small concrete step.
 - English. Never mention that you are an AI or a model.`;
 
   return `${persona}\n\n${task}\n\n---\n${transcript}\n---`;
