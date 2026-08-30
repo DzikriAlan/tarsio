@@ -34,6 +34,8 @@ const moodConfig: { key: Mood; emoji: string; color: string }[] = [
   { key: 'inspired', emoji: '✨', color: 'mood-pink' },
 ];
 
+const LANDING_QUEST_LIMIT = 3;
+
 type ChatMsg = { from: 'tarsy' | 'you'; text: string };
 
 export function Dashboard() {
@@ -676,9 +678,15 @@ export function Dashboard() {
                     <span className="eyebrow">{t('quests.eyebrow')}</span>
                     <h2>{t('quests.title')}</h2>
                   </div>
+                  {questList.length > LANDING_QUEST_LIMIT && (
+                    <button className="view-all-link" onClick={() => setActiveNav('quests')}>
+                      {t('quests.viewAll')} <ChevronRight size={15} />
+                    </button>
+                  )}
                 </div>
                 <div className="quest-grid">
-                  {questList.map((quest) => {
+                  {/* The landing page shows a shortlist; the Quests tab holds the rest. */}
+                  {questList.slice(0, LANDING_QUEST_LIMIT).map((quest) => {
                     const Icon = quest.category?.slug ? (categoryIcons[quest.category.slug] || Sparkles) : Sparkles;
                     const isCompleted = completedQuestIds.has(quest.id);
                     const isLocked = quest.tier_required === 'premium' && !isPremium;

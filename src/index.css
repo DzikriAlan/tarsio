@@ -590,6 +590,20 @@ h2 { font-size: 22px; line-height: 1.05; margin-top: 10px; }
 .section-block { margin-top: 42px; }
 .section-heading { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 17px; }
 .quest-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.view-all-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  align-self: flex-end;
+  background: none;
+  border: 0;
+  padding: 0 0 4px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--brown-600);
+  transition: .2s;
+}
+.view-all-link:hover { color: var(--ink); gap: 6px; }
 .quest-card {
   min-height: 245px;
   border: 3px solid var(--line);
