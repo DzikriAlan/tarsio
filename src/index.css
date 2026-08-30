@@ -522,21 +522,47 @@ h2 { font-size: 22px; line-height: 1.05; margin-top: 10px; }
 .vibe-card h2 { margin-top: 8px; }
 .vibe-card p, .blueprint-card p, .chat-promo p { color: var(--muted); font-size: 12px; line-height: 1.5; margin-top: 7px; max-width: 360px; }
 
-.mood-list { display: flex; gap: 7px; flex-wrap: wrap; margin-top: 25px; }
+/* One swipeable row instead of a wrapping pile - the card keeps a fixed height
+   no matter how many moods we add later. */
+.mood-list {
+  display: flex;
+  gap: 8px;
+  margin-top: 22px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  /* room for the pills' hover lift and drop shadow */
+  padding: 3px 3px 8px;
+  margin-left: -3px;
+  margin-right: -3px;
+}
+.mood-list::-webkit-scrollbar { display: none; }
 .mood-pill {
+  flex: 0 0 auto;
+  scroll-snap-align: start;
   border: 2px solid var(--line);
   background: var(--paper-light);
   border-radius: 100px;
-  padding: 8px 10px;
-  color: var(--brown-600);
+  padding: 8px 12px;
+  color: var(--brown-700);
   font-size: 10px;
+  font-weight: 600;
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 6px;
+  white-space: nowrap;
   transition: .2s ease;
   box-shadow: 2px 2px 0 var(--shadow);
 }
 .mood-pill:hover { transform: translate(-2px, -2px); box-shadow: 4px 4px 0 var(--shadow); }
+.mood-pill:active { transform: translate(1px, 1px); box-shadow: 1px 1px 0 var(--shadow); }
+/* Each mood carries its own colour at rest, not only once picked. */
+.mood-pill.mood-green { background: #eaf3cf; }
+.mood-pill.mood-blue { background: #ddeefc; }
+.mood-pill.mood-purple { background: #ece0f7; }
+.mood-pill.mood-yellow { background: #fbf0cd; }
+.mood-pill.mood-pink { background: #ffe4ec; }
 .mood-pill.chosen {
   transform: translate(-2px, -2px);
   box-shadow: 4px 4px 0 var(--shadow);
@@ -545,15 +571,11 @@ h2 { font-size: 22px; line-height: 1.05; margin-top: 10px; }
 }
 .mood-pill.chosen.mood-green { background: var(--lime); }
 .mood-pill.chosen.mood-blue { background: var(--blue); }
-.mood-pill.chosen.mood-purple { background: var(--purple-light); }
+.mood-pill.chosen.mood-purple { background: var(--purple); }
 .mood-pill.chosen.mood-yellow { background: var(--yellow); }
-.mood-pill.chosen.mood-pink { background: var(--pink-light); }
-.mood-pill > span { font-size: 15px; line-height: 10px; }
-.mood-green > span { color: var(--green); }
-.mood-blue > span { color: var(--blue); }
-.mood-purple > span { color: var(--purple); }
-.mood-yellow > span { color: #e9ae00; }
-.mood-pink > span { color: var(--pink); }
+.mood-pill.chosen.mood-pink { background: var(--pink); }
+/* line-height 1 keeps the emoji from being clipped by the pill's text box */
+.mood-pill > span { font-size: 15px; line-height: 1; display: block; }
 .saved-message {
   display: flex;
   align-items: center;
@@ -1015,8 +1037,8 @@ footer {
   .completion-card { display: none; }
   .vibe-card, .streak-card, .chat-promo, .blueprint-card { border-radius: 15px; padding: 18px; }
   .vibe-card h2 { font-size: 20px; max-width: 200px; }
-  .mood-list { gap: 6px; margin-top: 19px; }
-  .mood-pill { padding: 7px 8px; font-size: 9px; }
+  .mood-list { gap: 6px; margin-top: 18px; }
+  .mood-pill { padding: 7px 10px; font-size: 9px; }
   .section-block { margin-top: 31px; }
   .section-heading h2 { font-size: 20px; }
   .paywall-modal, .quest-modal { padding: 23px 20px; }
