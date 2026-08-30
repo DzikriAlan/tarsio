@@ -1061,29 +1061,38 @@ footer {
 .tarsy-svg { position: relative; z-index: 1; }
 .tarsy-speech-bubble {
   position: absolute;
-  bottom: -32px;
-  left: 50%;
-  transform: translateX(-50%);
+  bottom: -30px;
   background: var(--cream);
   border: 2px solid var(--line);
   border-radius: 10px;
   padding: 5px 10px;
   font-size: 9px;
-  white-space: nowrap;
+  line-height: 1.3;
+  /* The mascot is only ~64px wide, so shrink-to-fit would wrap this onto four
+     lines over its face. max-content sizes to the text instead. */
+  width: max-content;
+  max-width: 150px;
   color: var(--muted);
   box-shadow: 2px 2px 0 var(--shadow);
   animation: rise .3s ease both;
   z-index: 5;
+  pointer-events: none;
 }
+/* Anchor the bubble away from whichever edge it sits near, so cards that clip
+   their overflow never chop it in half. */
+.tarsy-speech-bubble.align-center { left: 50%; transform: translateX(-50%); }
+.tarsy-speech-bubble.align-right { right: 0; }
+.tarsy-speech-bubble.align-left { left: 0; }
 .tarsy-speech-bubble:after {
   content: '';
   position: absolute;
   top: -5px;
-  left: 50%;
-  transform: translateX(-50%);
   border: 5px solid transparent;
   border-bottom-color: var(--cream);
 }
+.tarsy-speech-bubble.align-center:after { left: 50%; transform: translateX(-50%); }
+.tarsy-speech-bubble.align-right:after { right: 14px; }
+.tarsy-speech-bubble.align-left:after { left: 14px; }
 
 /* ===== LEVEL BADGE ===== */
 .level-badge {
