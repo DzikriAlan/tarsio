@@ -648,7 +648,7 @@ export function Dashboard() {
                       <h2>{t('vibe.title')}</h2>
                       <p>{t('vibe.subtitle')}</p>
                     </div>
-                    <TarsyMascot size={64} mood={tarsyMood} lang={lang} onClick={() => { loadChat(); setChatOpen(true); }} />
+                    <TarsyMascot size={64} mood={tarsyMood} lang={lang} bubbleAlign="right" onClick={() => { loadChat(); setChatOpen(true); }} />
                   </div>
                   <div className="mood-list">
                     {moodConfig.map((item) => (
@@ -992,7 +992,7 @@ export function Dashboard() {
           <aside className="chat-drawer" onClick={(e) => e.stopPropagation()}>
             <div className="drawer-head">
               <div className="drawer-title">
-                <TarsyMascot size={40} mood={tarsyMood} lang={lang} />
+                <TarsyMascot size={40} mood={tarsyMood} lang={lang} bubble={false} />
                 <div>
                   <strong>Tarsy</strong>
                   <span>{t('chat.status.online')}</span>

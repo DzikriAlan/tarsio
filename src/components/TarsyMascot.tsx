@@ -4,11 +4,14 @@ import { translate } from '@/lib/i18n';
 
 export type TarsyMood = 'idle' | 'happy' | 'celebrate' | 'think' | 'encourage';
 
-export function TarsyMascot({ size = 120, mood = 'idle', lang, onClick }: {
+export function TarsyMascot({ size = 120, mood = 'idle', lang, onClick, bubble = true, bubbleAlign = 'center' }: {
   size?: number;
   mood?: TarsyMood;
   lang: Language;
   onClick?: () => void;
+  /** Speech bubble is opt-out: hide it inside tight containers that clip overflow. */
+  bubble?: boolean;
+  bubbleAlign?: 'center' | 'right' | 'left';
 }) {
   const [blink, setBlink] = useState(false);
   const [bounce, setBounce] = useState(false);
@@ -40,6 +43,8 @@ export function TarsyMascot({ size = 120, mood = 'idle', lang, onClick }: {
 
   const eyeShape = mood === 'celebrate' ? 'happy' : blink ? 'blink' : 'normal';
   const mouthShape = mood === 'celebrate' ? 'open' : mood === 'happy' ? 'smile-big' : mood === 'encourage' ? 'gentle' : mood === 'think' ? 'small' : 'smile';
+  // Pupils drift toward the thinking bubbles so the stare feels alive.
+  const gaze = mood === 'think' ? 2.5 : 0;
 
   return (
     <div
@@ -51,77 +56,93 @@ export function TarsyMascot({ size = 120, mood = 'idle', lang, onClick }: {
     >
       <div className="tarsy-aura" />
       <svg viewBox="0 0 120 120" className="tarsy-svg" style={{ width: size, height: size }}>
-        {/* Big tarsier ears - signature feature */}
-        <ellipse cx="28" cy="22" rx="16" ry="20" fill="#8b6f52" stroke="#2b1810" strokeWidth="1.5" transform="rotate(-18 28 22)" />
-        <ellipse cx="92" cy="22" rx="16" ry="20" fill="#8b6f52" stroke="#2b1810" strokeWidth="1.5" transform="rotate(18 92 22)" />
-        <ellipse cx="28" cy="24" rx="8" ry="11" fill="#d4a876" transform="rotate(-18 28 24)" />
-        <ellipse cx="92" cy="24" rx="8" ry="11" fill="#d4a876" transform="rotate(18 92 24)" />
+        {/* Head tufts - wispy tarsier crown */}
+        <path d="M 44 26 Q 46 12, 54 20" stroke="#2b1810" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+        <path d="M 60 22 Q 60 8, 66 16" stroke="#2b1810" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+        <path d="M 74 26 Q 78 14, 82 24" stroke="#2b1810" strokeWidth="2.5" fill="none" strokeLinecap="round" />
 
-        {/* Head - rounded */}
-        <ellipse cx="60" cy="62" rx="40" ry="38" fill="#bc8f67" stroke="#2b1810" strokeWidth="1.5" />
-        {/* Face mask - lighter area */}
-        <ellipse cx="60" cy="66" rx="34" ry="30" fill="#d4a876" opacity="0.5" />
+        {/* Ears - small, round, thin-skinned. Tarsiers do NOT have long ears. */}
+        <ellipse cx="19" cy="50" rx="10" ry="13" fill="#c99f78" stroke="#2b1810" strokeWidth="1.5" transform="rotate(-22 19 50)" />
+        <ellipse cx="101" cy="50" rx="10" ry="13" fill="#c99f78" stroke="#2b1810" strokeWidth="1.5" transform="rotate(22 101 50)" />
+        <path d="M 19 43 Q 23 50, 19 57" stroke="#8b6f52" strokeWidth="1.5" fill="none" transform="rotate(-22 19 50)" />
+        <path d="M 101 43 Q 97 50, 101 57" stroke="#8b6f52" strokeWidth="1.5" fill="none" transform="rotate(22 101 50)" />
 
-        {/* Tarsier signature: huge eyes */}
+        {/* Long clinging fingers, tucked behind the head like a branch grip */}
+        <g stroke="#2b1810" strokeWidth="1.5" fill="#c99f78">
+          <ellipse cx="22" cy="86" rx="3.2" ry="10" transform="rotate(-14 22 86)" />
+          <ellipse cx="30" cy="88" rx="3.2" ry="10.5" transform="rotate(-6 30 88)" />
+          <ellipse cx="90" cy="88" rx="3.2" ry="10.5" transform="rotate(6 90 88)" />
+          <ellipse cx="98" cy="86" rx="3.2" ry="10" transform="rotate(14 98 86)" />
+        </g>
+
+        {/* Head - round, slightly wider than tall */}
+        <ellipse cx="60" cy="62" rx="39" ry="37" fill="#bc8f67" stroke="#2b1810" strokeWidth="1.5" />
+        {/* Cream face mask */}
+        <ellipse cx="60" cy="64" rx="33" ry="31" fill="#f0dcc4" />
+
+        {/* THE signature: enormous eyes that nearly meet in the middle */}
         {eyeShape === 'blink' ? (
           <>
-            <line x1="40" y1="58" x2="50" y2="58" stroke="#1a1a2e" strokeWidth="3.5" strokeLinecap="round" />
-            <line x1="70" y1="58" x2="80" y2="58" stroke="#1a1a2e" strokeWidth="3.5" strokeLinecap="round" />
+            <path d="M 26 58 Q 42 66, 58 58" stroke="#2b1810" strokeWidth="3.5" fill="none" strokeLinecap="round" />
+            <path d="M 62 58 Q 78 66, 94 58" stroke="#2b1810" strokeWidth="3.5" fill="none" strokeLinecap="round" />
           </>
         ) : eyeShape === 'happy' ? (
           <>
-            <path d="M 38 58 Q 45 48, 52 58" stroke="#1a1a2e" strokeWidth="3.5" fill="none" strokeLinecap="round" />
-            <path d="M 68 58 Q 75 48, 82 58" stroke="#1a1a2e" strokeWidth="3.5" fill="none" strokeLinecap="round" />
+            <path d="M 27 62 Q 42 44, 57 62" stroke="#2b1810" strokeWidth="4" fill="none" strokeLinecap="round" />
+            <path d="M 63 62 Q 78 44, 93 62" stroke="#2b1810" strokeWidth="4" fill="none" strokeLinecap="round" />
           </>
         ) : (
           <>
-            {/* Huge eye whites */}
-            <ellipse cx="46" cy="58" rx="11" ry="12" fill="#fff" stroke="#2b1810" strokeWidth="1.5" />
-            <ellipse cx="74" cy="58" rx="11" ry="12" fill="#fff" stroke="#2b1810" strokeWidth="1.5" />
-            {/* Big dark pupils - tarsier signature */}
-            <ellipse cx="46" cy="59" rx="8" ry="9" fill="#1a1a2e" />
-            <ellipse cx="74" cy="59" rx="8" ry="9" fill="#1a1a2e" />
-            {/* Eye shine */}
-            <circle cx="49" cy="55" r="3" fill="#fff" />
-            <circle cx="77" cy="55" r="3" fill="#fff" />
-            <circle cx="43" cy="62" r="1.5" fill="#fff" opacity="0.6" />
-            <circle cx="71" cy="62" r="1.5" fill="#fff" opacity="0.6" />
+            {/* Amber iris fills almost the whole eye - the tarsier stare */}
+            <circle cx="42" cy="58" r="17" fill="#f0b73f" stroke="#2b1810" strokeWidth="2" />
+            <circle cx="78" cy="58" r="17" fill="#f0b73f" stroke="#2b1810" strokeWidth="2" />
+            <circle cx="42" cy="58" r="12" fill="#c98b1e" opacity="0.45" />
+            <circle cx="78" cy="58" r="12" fill="#c98b1e" opacity="0.45" />
+            {/* Wide dark pupils */}
+            <circle cx={42 + gaze} cy="58" r="9.5" fill="#1a1a2e" />
+            <circle cx={78 + gaze} cy="58" r="9.5" fill="#1a1a2e" />
+            {/* Catchlights */}
+            <circle cx={46 + gaze} cy="53" r="3.4" fill="#fff" />
+            <circle cx={82 + gaze} cy="53" r="3.4" fill="#fff" />
+            <circle cx={38 + gaze} cy="62" r="1.8" fill="#fff" opacity="0.7" />
+            <circle cx={74 + gaze} cy="62" r="1.8" fill="#fff" opacity="0.7" />
           </>
         )}
 
-        {/* Small nose */}
-        <ellipse cx="60" cy="74" rx="3.5" ry="2.5" fill="#8b6f52" stroke="#2b1810" strokeWidth="1" />
+        {/* Short muzzle tucked under the eyes */}
+        <ellipse cx="60" cy="83" rx="13" ry="9" fill="#e3caae" />
+        <path d="M 60 78 L 56.5 82 Q 60 85, 63.5 82 Z" fill="#2b1810" />
 
         {/* Mouth */}
         {mouthShape === 'open' ? (
           <>
-            <ellipse cx="60" cy="82" rx="9" ry="7" fill="#1a1a2e" stroke="#2b1810" strokeWidth="1.5" />
-            <ellipse cx="60" cy="85" rx="5" ry="3" fill="#ff8fa3" opacity="0.5" />
+            <ellipse cx="60" cy="89" rx="6.5" ry="5.5" fill="#2b1810" />
+            <ellipse cx="60" cy="91" rx="3.5" ry="2.5" fill="#ff8fa3" opacity="0.6" />
           </>
         ) : mouthShape === 'smile-big' ? (
-          <path d="M 46 78 Q 60 92, 74 78" stroke="#1a1a2e" strokeWidth="3.5" fill="none" strokeLinecap="round" />
+          <path d="M 52 85 Q 60 94, 68 85" stroke="#2b1810" strokeWidth="2.5" fill="none" strokeLinecap="round" />
         ) : mouthShape === 'gentle' ? (
-          <path d="M 50 80 Q 60 85, 70 80" stroke="#1a1a2e" strokeWidth="3" fill="none" strokeLinecap="round" />
+          <path d="M 54 86 Q 60 90, 66 86" stroke="#2b1810" strokeWidth="2.5" fill="none" strokeLinecap="round" />
         ) : mouthShape === 'small' ? (
-          <ellipse cx="60" cy="81" rx="4" ry="3" fill="#1a1a2e" />
+          <ellipse cx="60" cy="88" rx="3" ry="2.5" fill="#2b1810" />
         ) : (
-          <path d="M 52 79 Q 60 84, 68 79" stroke="#1a1a2e" strokeWidth="3" fill="none" strokeLinecap="round" />
+          <path d="M 55 86 Q 60 89.5, 65 86" stroke="#2b1810" strokeWidth="2.5" fill="none" strokeLinecap="round" />
         )}
 
-        {/* Cheeks - blush */}
-        <circle cx="34" cy="74" r="6" fill="#ff8fa3" opacity="0.45" />
-        <circle cx="86" cy="74" r="6" fill="#ff8fa3" opacity="0.45" />
+        {/* Blush, kept clear of the eyes */}
+        <circle cx="34" cy="80" r="5" fill="#ff8fa3" opacity="0.4" />
+        <circle cx="86" cy="80" r="5" fill="#ff8fa3" opacity="0.4" />
 
         {/* Think bubbles when thinking */}
         {mood === 'think' && (
           <>
-            <circle cx="100" cy="30" r="5" fill="#fff" stroke="#2b1810" strokeWidth="1.5" opacity="0.7" />
-            <circle cx="108" cy="20" r="3" fill="#fff" stroke="#2b1810" strokeWidth="1.5" opacity="0.7" />
+            <circle cx="103" cy="24" r="5" fill="#fff" stroke="#2b1810" strokeWidth="1.5" opacity="0.8" />
+            <circle cx="112" cy="14" r="3" fill="#fff" stroke="#2b1810" strokeWidth="1.5" opacity="0.8" />
           </>
         )}
       </svg>
-      {mood === 'idle' && (
-        <div className="tarsy-speech-bubble">
+      {bubble && mood === 'idle' && (
+        <div className={`tarsy-speech-bubble align-${bubbleAlign}`}>
           {translate(lang, 'tarsy.idle')}
         </div>
       )}
