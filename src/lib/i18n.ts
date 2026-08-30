@@ -191,6 +191,8 @@ const id: Dict = {
   'quest.resultTakeaway': 'Langkah kecil buat besok',
   'common.loading': 'Memuat...',
   'common.error': 'Ada yang salah. Coba lagi ya.',
+  'chat.error': 'Aduh, aku lagi susah nyambung. Coba kirim lagi sebentar lagi ya.',
+  'chat.retry': 'Kirim ulang',
 };
 
 const en: Dict = {
@@ -382,6 +384,8 @@ const en: Dict = {
   'quest.resultTakeaway': 'A small step for tomorrow',
   'common.loading': 'Loading...',
   'common.error': 'Something went wrong. Please try again.',
+  'chat.error': 'I am having trouble connecting right now. Mind sending that again in a moment?',
+  'chat.retry': 'Send again',
 };
 
 const dicts: Record<Language, Dict> = { id, en };

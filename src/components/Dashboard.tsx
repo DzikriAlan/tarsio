@@ -11,7 +11,7 @@ import {
   ArrowUpRight, BarChart3, Bot, Check, ChevronRight, CircleHelp, Flame,
   HeartHandshake, Lock, Menu, MessageCircle, MoreHorizontal, PenLine,
   Send, Sparkles, Target, Trophy, WalletCards, X, Zap, Star, Compass,
-  Baby, Heart, Award, Copy, UserPlus, TrendingUp, User, Calendar,
+  Baby, Heart, Award, Copy, UserPlus, TrendingUp, User, Calendar, RefreshCw,
 } from 'lucide-react';
 
 const categoryIcons: Record<string, typeof Target> = {
@@ -36,7 +36,7 @@ const moodConfig: { key: Mood; emoji: string; color: string }[] = [
 
 const LANDING_QUEST_LIMIT = 3;
 
-type ChatMsg = { from: 'tarsy' | 'you'; text: string };
+type ChatMsg = { from: 'tarsy' | 'you'; text: string; error?: boolean };
 
 export function Dashboard() {
   const { profile, language, setLanguage, signOut, refreshProfile } = useAuth();
@@ -69,6 +69,7 @@ export function Dashboard() {
   const [showLevelUp, setShowLevelUp] = useState(false);
   const [levelUpNum, setLevelUpNum] = useState(0);
   const [chatTyping, setChatTyping] = useState(false);
+  const [lastUserMessage, setLastUserMessage] = useState('');
   const [copied, setCopied] = useState(false);
   const [friendCode, setFriendCode] = useState('');
   const [friendError, setFriendError] = useState('');
@@ -321,12 +322,71 @@ export function Dashboard() {
     setTimeout(() => setTarsyMood('idle'), 2000);
   }
 
+  async function requestReply(userText: string) {
+    setChatTyping(true);
+    setTarsyMood('think');
+
+    try {
+      const { data: session } = await supabase.auth.getSession();
+      const token = session.session?.access_token;
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 20000);
+      let res: Response;
+      try {
+        res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/tarsy-chat`, {
+          method: 'POST',
+          signal: controller.signal,
+          headers: {
+            'Content-Type': 'application/json',
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+            ...(import.meta.env.VITE_SUPABASE_ANON_KEY ? { apikey: import.meta.env.VITE_SUPABASE_ANON_KEY } : {}),
+          },
+          body: JSON.stringify({
+            message: userText,
+            history: messages
+              .filter((m) => !m.error)
+              .map((m) => ({ role: m.from === 'you' ? 'user' : 'tarsy', content: m.text })),
+            lang,
+          }),
+        });
+      } finally {
+        clearTimeout(timeout);
+      }
+      const data = await res.json();
+      if (!res.ok || !data.reply) throw new Error(data.error || 'no reply');
+
+      const reply: string = data.reply;
+      setChatTyping(false);
+      setTarsyMood('happy');
+      // Drop any earlier error bubble now that Tarsy actually answered.
+      setMessages((cur) => [...cur.filter((m) => !m.error), { from: 'tarsy', text: reply }]);
+
+      if (chatSessionId && profile?.id) {
+        await supabase.from('chat_messages').insert({
+          session_id: chatSessionId,
+          user_id: profile.id,
+          role: 'tarsy',
+          content: reply,
+        });
+        await supabase.from('chat_sessions').update({ last_message_at: new Date().toISOString() }).eq('id', chatSessionId);
+      }
+      setTimeout(() => setTarsyMood('idle'), 2000);
+    } catch (err) {
+      console.error('tarsy-chat request failed:', err);
+      setChatTyping(false);
+      setTarsyMood('idle');
+      // Say so honestly instead of passing a canned line off as Tarsy's answer.
+      setMessages((cur) => [...cur.filter((m) => !m.error), { from: 'tarsy', text: t('chat.error'), error: true }]);
+      setLastUserMessage(userText);
+    }
+  }
+
   async function submitMessage() {
     const trimmed = message.trim();
-    if (!trimmed || !chatSessionId || !profile?.id) return;
-    setMessages((cur) => [...cur, { from: 'you', text: trimmed }]);
+    if (!trimmed || !chatSessionId || !profile?.id || chatTyping) return;
+    setMessages((cur) => [...cur.filter((m) => !m.error), { from: 'you', text: trimmed }]);
     setMessage('');
-    setTarsyMood('think');
+    setLastUserMessage(trimmed);
 
     await supabase.from('chat_messages').insert({
       session_id: chatSessionId,
@@ -335,44 +395,7 @@ export function Dashboard() {
       content: trimmed,
     });
 
-    setChatTyping(true);
-
-    let reply: string;
-    try {
-      const { data: session } = await supabase.auth.getSession();
-      const token = session.session?.access_token;
-      const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/tarsy-chat`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-          ...(import.meta.env.VITE_SUPABASE_ANON_KEY ? { apikey: import.meta.env.VITE_SUPABASE_ANON_KEY } : {}),
-        },
-        body: JSON.stringify({
-          message: trimmed,
-          history: messages.map((m) => ({ role: m.from === 'you' ? 'user' : 'tarsy', content: m.text })),
-          lang,
-        }),
-      });
-      const data = await res.json();
-      if (!data.reply) throw new Error('no reply');
-      reply = data.reply;
-    } catch {
-      const replies = [t('chat.reply1'), t('chat.reply2'), t('chat.reply3'), t('chat.reply4'), t('chat.reply5')];
-      reply = replies[Math.floor(Math.random() * replies.length)];
-    }
-
-    setChatTyping(false);
-    setTarsyMood('happy');
-    setMessages((cur) => [...cur, { from: 'tarsy', text: reply }]);
-    await supabase.from('chat_messages').insert({
-      session_id: chatSessionId,
-      user_id: profile.id,
-      role: 'tarsy',
-      content: reply,
-    });
-    await supabase.from('chat_sessions').update({ last_message_at: new Date().toISOString() }).eq('id', chatSessionId);
-    setTimeout(() => setTarsyMood('idle'), 2000);
+    await requestReply(trimmed);
   }
 
   async function upgradeToPremium() {
@@ -1011,7 +1034,14 @@ export function Dashboard() {
             <div className="chat-messages">
               {messages.map((item, index) => (
                 <div className={`message-row ${item.from}`} key={`${item.text}-${index}`}>
-                  <div className="message-bubble"><Markdown text={item.text} /></div>
+                  <div className={`message-bubble ${item.error ? 'is-error' : ''}`}>
+                    <Markdown text={item.text} />
+                    {item.error && (
+                      <button className="retry-button" onClick={() => requestReply(lastUserMessage)}>
+                        <RefreshCw size={12} /> {t('chat.retry')}
+                      </button>
+                    )}
+                  </div>
                 </div>
               ))}
               {chatTyping && (

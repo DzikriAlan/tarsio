@@ -867,6 +867,23 @@ footer {
   color: var(--cream);
   border-radius: 14px 4px 14px 14px;
 }
+.message-bubble.is-error { background: #fdeae7; border-color: var(--red); }
+.retry-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 9px;
+  padding: 5px 9px;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--ink);
+  background: var(--paper-light);
+  border: 2px solid var(--line);
+  border-radius: 8px;
+  box-shadow: 2px 2px 0 var(--shadow);
+  transition: .2s;
+}
+.retry-button:hover { transform: translate(-1px, -1px); box-shadow: 3px 3px 0 var(--shadow); }
 .chat-suggestions { display: flex; gap: 7px; padding: 0 25px 14px; flex-wrap: wrap; }
 .chat-suggestions button {
   background: var(--paper-light);
