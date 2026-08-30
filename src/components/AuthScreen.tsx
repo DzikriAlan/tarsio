@@ -23,7 +23,14 @@ export function AuthScreen({ lang }: { lang: Language }) {
       : await signIn(email, password);
     setLoading(false);
     if (result.error) {
-      setError(result.error.includes('already') ? t('auth.exists') : t('auth.error'));
+      // Map to a specific reason: collapsing everything into "wrong password"
+      // hid real causes like an unconfirmed email.
+      const raw = result.error.toLowerCase();
+      if (raw.includes('already')) setError(t('auth.exists'));
+      else if (raw.includes('not confirmed')) setError(t('auth.unconfirmed'));
+      else if (raw.includes('rate limit')) setError(t('auth.rateLimit'));
+      else if (raw.includes('invalid login')) setError(t('auth.error'));
+      else setError(result.error);
     }
   }
 
