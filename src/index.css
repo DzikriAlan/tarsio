@@ -517,30 +517,39 @@ h1 { font-size: clamp(30px, 3.4vw, 45px); line-height: 1; margin-top: 11px; }
   box-shadow: 6px 6px 0 var(--shadow);
 }
 .vibe-card:hover { transform: translate(-3px, -3px); box-shadow: 9px 9px 0 var(--shadow); }
-.card-heading { display: flex; justify-content: space-between; }
+/* Maskot dan bubble-nya diberi kolom sendiri selebar bubble (150px), supaya
+   bubble yang position:absolute itu turun ke ruang kosong dan tidak lagi
+   mendarat di atas paragraf di sebelah kirinya. */
+.card-heading { display: flex; justify-content: space-between; align-items: flex-start; gap: 14px; }
+.card-heading-text { min-width: 0; flex: 1 1 auto; }
+.card-heading-side {
+  flex: 0 0 auto;
+  width: 150px;
+  display: flex;
+  justify-content: flex-end;
+  /* tinggi bubble yang menggantung di bawah maskot */
+  padding-bottom: 30px;
+}
 h2 { font-size: 22px; line-height: 1.05; margin-top: 10px; }
 .vibe-card h2 { margin-top: 8px; }
-.vibe-card p, .blueprint-card p, .chat-promo p { color: var(--muted); font-size: 12px; line-height: 1.5; margin-top: 7px; max-width: 360px; }
+.vibe-card p, .blueprint-card p, .chat-promo p { color: var(--muted); font-size: 12px; line-height: 1.5; margin-top: 7px; max-width: 360px; overflow-wrap: anywhere; }
 
-/* One swipeable row instead of a wrapping pile - the card keeps a fixed height
-   no matter how many moods we add later. */
+/* Dulu satu baris yang digulung ke samping, tapi pil terakhir selalu terpotong
+   di tepi kartu dan terbaca seperti rusak. Sekarang membungkus ke bawah:
+   kartunya memang tumbuh, tapi tidak ada yang tersembunyi. */
 .mood-list {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
   margin-top: 22px;
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
   /* room for the pills' hover lift and drop shadow */
   padding: 3px 3px 8px;
   margin-left: -3px;
   margin-right: -3px;
 }
-.mood-list::-webkit-scrollbar { display: none; }
 .mood-pill {
-  flex: 0 0 auto;
-  scroll-snap-align: start;
+  flex: 0 1 auto;
+  max-width: 100%;
   border: 2px solid var(--line);
   background: var(--paper-light);
   border-radius: 100px;

@@ -668,12 +668,14 @@ export function Dashboard() {
                 </div>
                 <div className="vibe-card">
                   <div className="card-heading">
-                    <div>
+                    <div className="card-heading-text">
                       <span className="eyebrow">{t('vibe.eyebrow')}</span>
                       <h2>{t('vibe.title')}</h2>
                       <p>{t('vibe.subtitle')}</p>
                     </div>
-                    <TarsyMascot size={64} mood={tarsyMood} lang={lang} bubbleAlign="right" onClick={() => { loadChat(); setChatOpen(true); }} />
+                    <div className="card-heading-side">
+                      <TarsyMascot size={64} mood={tarsyMood} lang={lang} bubbleAlign="right" onClick={() => { loadChat(); setChatOpen(true); }} />
+                    </div>
                   </div>
                   <div className="mood-list">
                     {moodConfig.map((item) => (
