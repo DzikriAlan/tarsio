@@ -6,14 +6,23 @@ import type { Language } from './types';
 // daripada teks message-nya, jadi ikut diteruskan ke UI.
 type AuthResult = { error: string | null; code?: string };
 
+// Supabase Auth selalu butuh email, tapi tarsio cuma minta username. Username
+// dipetakan ke email sintetis di domain yang tidak pernah dikirimi surat, jadi
+// keunikan username ikut dijamin oleh unique constraint email milik Supabase.
+const USERNAME_DOMAIN = 'tarsio.local';
+
+export function usernameToEmail(username: string) {
+  return `${username.trim().toLowerCase()}@${USERNAME_DOMAIN}`;
+}
+
 type AuthState = {
   session: { user: { id: string; email: string } } | null;
   profile: Profile | null;
   loading: boolean;
   language: Language;
   setLanguage: (lang: Language) => void;
-  signUp: (email: string, password: string, displayName: string, lang: Language) => Promise<AuthResult>;
-  signIn: (email: string, password: string) => Promise<AuthResult>;
+  signUp: (username: string, password: string, lang: Language) => Promise<AuthResult>;
+  signIn: (username: string, password: string) => Promise<AuthResult>;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
 };
@@ -84,11 +93,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  async function signUp(email: string, password: string, displayName: string, lang: Language) {
+  async function signUp(username: string, password: string, lang: Language) {
     const { data, error } = await supabase.auth.signUp({
-      email,
+      email: usernameToEmail(username),
       password,
-      options: { data: { display_name: displayName, language_pref: lang } },
+      options: { data: { display_name: username.trim(), language_pref: lang } },
     });
     if (error) return { error: error.message, code: error.code };
     if (data.user) {
@@ -105,8 +114,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { error: null };
   }
 
-  async function signIn(email: string, password: string) {
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+  async function signIn(username: string, password: string) {
+    const { error } = await supabase.auth.signInWithPassword({
+      email: usernameToEmail(username),
+      password,
+    });
     if (error) return { error: error.message, code: error.code };
     return { error: null };
   }
