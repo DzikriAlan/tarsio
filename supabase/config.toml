@@ -1,3 +1,11 @@
+[auth]
+# Diaktifkan eksplisit: pendaftaran lewat email sempat mati di project remote
+# dan signUp() balik dengan email_provider_disabled.
+enable_signup = true
+
+[auth.email]
+enable_signup = true
+
 [functions.quest-result]
 verify_jwt = true
 
