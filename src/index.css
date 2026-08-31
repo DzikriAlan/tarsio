@@ -1724,11 +1724,28 @@ footer {
   .stat-card { padding: 14px; }
   .stat-card strong { font-size: 22px; }
   .achievements-grid { grid-template-columns: 1fr; }
-  .confetti-text { font-size: 20px; padding: 10px 18px; }
+  .confetti-text { font-size: 20px; padding: 10px 18px; max-width: calc(100vw - 48px); text-align: center; }
   .levelup-card { padding: 28px 32px; }
   .levelup-card h2 { font-size: 22px; }
   .profile-stats-row { grid-template-columns: 1fr 1fr; }
 }
+/* Kolom 150px untuk maskot masuk akal di kartu lebar, tapi di ponsel itu
+   memakan lebih dari separuh kartu. Bubble disembunyikan dan kolomnya menyusut
+   ke lebar maskot; maskotnya sendiri tetap bisa diketuk untuk membuka chat. */
+@media (max-width: 640px) {
+  .card-heading { gap: 10px; }
+  .card-heading-side { width: auto; padding-bottom: 0; }
+  .card-heading-side .tarsy-speech-bubble { display: none; }
+}
+@media (max-width: 480px) {
+  .card-heading-side .tarsy-mascot,
+  .card-heading-side .tarsy-svg { width: 52px !important; height: 52px !important; }
+  .mood-list { margin-top: 16px; }
+}
+/* Judul panjang tanpa spasi (username, URL yang ditempel) tidak boleh
+   melebarkan kartunya sendiri. */
+h1, h2, h3, .drawer-title strong, .quest-card h3 { overflow-wrap: anywhere; }
+
 /* Markdown inline dari balasan Tarsy */
 .message-bubble code, .quest-result-body code, .quest-result-takeaway code {
   font: 500 .92em 'DM Mono', monospace;
