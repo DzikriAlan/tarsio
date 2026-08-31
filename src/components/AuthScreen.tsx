@@ -24,13 +24,23 @@ export function AuthScreen({ lang }: { lang: Language }) {
     setLoading(false);
     if (result.error) {
       // Map to a specific reason: collapsing everything into "wrong password"
-      // hid real causes like an unconfirmed email.
+      // hid real causes like an unconfirmed email. Prefer Supabase's error code
+      // and only fall back to sniffing the English message.
+      const code = result.code ?? '';
       const raw = result.error.toLowerCase();
-      if (raw.includes('already')) setError(t('auth.exists'));
-      else if (raw.includes('not confirmed')) setError(t('auth.unconfirmed'));
-      else if (raw.includes('rate limit')) setError(t('auth.rateLimit'));
-      else if (raw.includes('invalid login')) setError(t('auth.error'));
-      else setError(result.error);
+      if (code === 'email_provider_disabled' || code === 'signup_disabled' || raw.includes('signups are disabled')) {
+        setError(t('auth.signupDisabled'));
+      } else if (code === 'user_already_exists' || raw.includes('already')) {
+        setError(t('auth.exists'));
+      } else if (code === 'email_not_confirmed' || raw.includes('not confirmed')) {
+        setError(t('auth.unconfirmed'));
+      } else if (code === 'over_request_rate_limit' || code === 'over_email_send_rate_limit' || raw.includes('rate limit')) {
+        setError(t('auth.rateLimit'));
+      } else if (code === 'invalid_credentials' || raw.includes('invalid login')) {
+        setError(t('auth.error'));
+      } else {
+        setError(result.error);
+      }
     }
   }
 
