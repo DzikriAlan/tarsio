@@ -5,6 +5,10 @@ enable_signup = true
 
 [auth.email]
 enable_signup = true
+# Dimatikan selama tahap preview: SMTP bawaan Supabase dibatasi ~2 email/jam,
+# jadi konfirmasi lebih sering menahan akun uji daripada mengamankan apa pun.
+# Nyalakan lagi bersama SMTP sendiri sebelum tarsio dibuka untuk publik.
+enable_confirmations = false
 
 [functions.quest-result]
 verify_jwt = true
