@@ -2,14 +2,18 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from '
 import { supabase, type Profile } from './supabase';
 import type { Language } from './types';
 
+// Kode error Supabase (mis. 'email_provider_disabled') jauh lebih stabil
+// daripada teks message-nya, jadi ikut diteruskan ke UI.
+type AuthResult = { error: string | null; code?: string };
+
 type AuthState = {
   session: { user: { id: string; email: string } } | null;
   profile: Profile | null;
   loading: boolean;
   language: Language;
   setLanguage: (lang: Language) => void;
-  signUp: (email: string, password: string, displayName: string, lang: Language) => Promise<{ error: string | null }>;
-  signIn: (email: string, password: string) => Promise<{ error: string | null }>;
+  signUp: (email: string, password: string, displayName: string, lang: Language) => Promise<AuthResult>;
+  signIn: (email: string, password: string) => Promise<AuthResult>;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
 };
@@ -86,7 +90,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       password,
       options: { data: { display_name: displayName, language_pref: lang } },
     });
-    if (error) return { error: error.message };
+    if (error) return { error: error.message, code: error.code };
     if (data.user) {
       const { data: prof } = await supabase
         .from('profiles')
@@ -103,7 +107,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   async function signIn(email: string, password: string) {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) return { error: error.message };
+    if (error) return { error: error.message, code: error.code };
     return { error: null };
   }
 
