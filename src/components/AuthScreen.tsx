@@ -7,9 +7,8 @@ import { Sparkles, ArrowRight } from 'lucide-react';
 export function AuthScreen({ lang }: { lang: Language }) {
   const { signIn, signUp } = useAuth();
   const [mode, setMode] = useState<'login' | 'signup'>('signup');
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [name, setName] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const t = (k: string, p?: Record<string, string | number>) => translate(lang, k, p);
@@ -19,17 +18,16 @@ export function AuthScreen({ lang }: { lang: Language }) {
     setError('');
     setLoading(true);
     const result = mode === 'signup'
-      ? await signUp(email, password, name || email.split('@')[0], lang)
-      : await signIn(email, password);
+      ? await signUp(username, password, lang)
+      : await signIn(username, password);
     setLoading(false);
     if (result.error) {
-      // Map to a specific reason: collapsing everything into "wrong password"
-      // hid real causes like an unconfirmed email. Prefer Supabase's error code
-      // and only fall back to sniffing the English message.
       const code = result.code ?? '';
       const raw = result.error.toLowerCase();
       if (code === 'email_provider_disabled' || code === 'signup_disabled' || raw.includes('signups are disabled')) {
         setError(t('auth.signupDisabled'));
+      } else if (code === 'weak_password' || raw.includes('at least 6')) {
+        setError(t('auth.weakPassword'));
       } else if (code === 'user_already_exists' || raw.includes('already')) {
         setError(t('auth.exists'));
       } else if (code === 'email_not_confirmed' || raw.includes('not confirmed')) {
@@ -57,23 +55,17 @@ export function AuthScreen({ lang }: { lang: Language }) {
         <h1>{t('auth.welcome')}</h1>
         <p>{t('auth.subtitle')}</p>
         <form onSubmit={handleSubmit}>
-          {mode === 'signup' && (
-            <input
-              type="text"
-              placeholder={t('auth.name')}
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="auth-input"
-              required
-            />
-          )}
           <input
-            type="email"
-            placeholder={t('auth.email')}
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            type="text"
+            placeholder={t('auth.username')}
+            value={username}
+            onChange={(e) => setUsername(e.target.value.replace(/\s/g, ''))}
             className="auth-input"
+            autoCapitalize="none"
+            autoCorrect="off"
+            autoComplete="username"
             required
+            minLength={3}
           />
           <input
             type="password"
@@ -83,6 +75,7 @@ export function AuthScreen({ lang }: { lang: Language }) {
             className="auth-input"
             required
             minLength={6}
+            autoComplete={mode === 'signup' ? 'new-password' : 'current-password'}
           />
           {error && <p className="auth-error">{error}</p>}
           <button type="submit" className="auth-submit" disabled={loading}>
