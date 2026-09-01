@@ -70,88 +70,72 @@ export function TarsyMascot({ size = 120, mood = 'idle', lang, onClick, bubble =
     >
       <div className="tarsy-aura" />
       <svg viewBox="0 0 120 120" className="tarsy-svg" style={{ width: size, height: size }}>
-        {/* Head tufts - wispy tarsier crown */}
-        <path d="M 44 26 Q 46 12, 54 20" stroke="#2b1810" strokeWidth="2.5" fill="none" strokeLinecap="round" />
-        <path d="M 60 22 Q 60 8, 66 16" stroke="#2b1810" strokeWidth="2.5" fill="none" strokeLinecap="round" />
-        <path d="M 74 26 Q 78 14, 82 24" stroke="#2b1810" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+        {/* Telinga bulat besar, duduk di belakang kepala */}
+        <ellipse cx="28" cy="33" rx="19" ry="21" fill={FUR_SHADE} transform="rotate(-12 28 33)" />
+        <ellipse cx="92" cy="33" rx="19" ry="21" fill={FUR_SHADE} transform="rotate(12 92 33)" />
+        <ellipse cx="29" cy="35" rx="11" ry="13" fill={EAR_INNER} transform="rotate(-12 29 35)" />
+        <ellipse cx="91" cy="35" rx="11" ry="13" fill={EAR_INNER} transform="rotate(12 91 35)" />
 
-        {/* Ears - small, round, thin-skinned. Tarsiers do NOT have long ears. */}
-        <ellipse cx="19" cy="50" rx="10" ry="13" fill="#c99f78" stroke="#2b1810" strokeWidth="1.5" transform="rotate(-22 19 50)" />
-        <ellipse cx="101" cy="50" rx="10" ry="13" fill="#c99f78" stroke="#2b1810" strokeWidth="1.5" transform="rotate(22 101 50)" />
-        <path d="M 19 43 Q 23 50, 19 57" stroke="#8b6f52" strokeWidth="1.5" fill="none" transform="rotate(-22 19 50)" />
-        <path d="M 101 43 Q 97 50, 101 57" stroke="#8b6f52" strokeWidth="1.5" fill="none" transform="rotate(22 101 50)" />
+        {/* Kepala membulat, sedikit lebih lebar dari tinggi */}
+        <ellipse cx="60" cy="69" rx="41" ry="38" fill={FUR} stroke={LINE} strokeWidth="1.4" strokeOpacity="0.45" />
+        <ellipse cx="60" cy="72" rx="35" ry="32" fill={FACE} />
 
-        {/* Long clinging fingers, tucked behind the head like a branch grip */}
-        <g stroke="#2b1810" strokeWidth="1.5" fill="#c99f78">
-          <ellipse cx="22" cy="86" rx="3.2" ry="10" transform="rotate(-14 22 86)" />
-          <ellipse cx="30" cy="88" rx="3.2" ry="10.5" transform="rotate(-6 30 88)" />
-          <ellipse cx="90" cy="88" rx="3.2" ry="10.5" transform="rotate(6 90 88)" />
-          <ellipse cx="98" cy="86" rx="3.2" ry="10" transform="rotate(14 98 86)" />
-        </g>
-
-        {/* Head - round, slightly wider than tall */}
-        <ellipse cx="60" cy="62" rx="39" ry="37" fill="#bc8f67" stroke="#2b1810" strokeWidth="1.5" />
-        {/* Cream face mask */}
-        <ellipse cx="60" cy="64" rx="33" ry="31" fill="#f0dcc4" />
-
-        {/* THE signature: enormous eyes that nearly meet in the middle */}
+        {/* Mata besar berdekatan — ciri khas tarsius, tapi biru bukan amber */}
         {eyeShape === 'blink' ? (
           <>
-            <path d="M 26 58 Q 42 66, 58 58" stroke="#2b1810" strokeWidth="3.5" fill="none" strokeLinecap="round" />
-            <path d="M 62 58 Q 78 66, 94 58" stroke="#2b1810" strokeWidth="3.5" fill="none" strokeLinecap="round" />
+            <path d="M 34 64 Q 46 72, 58 64" stroke={LINE} strokeWidth="3" fill="none" strokeLinecap="round" />
+            <path d="M 62 64 Q 74 72, 86 64" stroke={LINE} strokeWidth="3" fill="none" strokeLinecap="round" />
           </>
         ) : eyeShape === 'happy' ? (
           <>
-            <path d="M 27 62 Q 42 44, 57 62" stroke="#2b1810" strokeWidth="4" fill="none" strokeLinecap="round" />
-            <path d="M 63 62 Q 78 44, 93 62" stroke="#2b1810" strokeWidth="4" fill="none" strokeLinecap="round" />
+            <path d="M 34 68 Q 46 52, 58 68" stroke={LINE} strokeWidth="3.5" fill="none" strokeLinecap="round" />
+            <path d="M 62 68 Q 74 52, 86 68" stroke={LINE} strokeWidth="3.5" fill="none" strokeLinecap="round" />
           </>
         ) : (
           <>
-            {/* Amber iris fills almost the whole eye - the tarsier stare */}
-            <circle cx="42" cy="58" r="17" fill="#f0b73f" stroke="#2b1810" strokeWidth="2" />
-            <circle cx="78" cy="58" r="17" fill="#f0b73f" stroke="#2b1810" strokeWidth="2" />
-            <circle cx="42" cy="58" r="12" fill="#c98b1e" opacity="0.45" />
-            <circle cx="78" cy="58" r="12" fill="#c98b1e" opacity="0.45" />
-            {/* Wide dark pupils */}
-            <circle cx={42 + gaze} cy="58" r="9.5" fill="#1a1a2e" />
-            <circle cx={78 + gaze} cy="58" r="9.5" fill="#1a1a2e" />
-            {/* Catchlights */}
-            <circle cx={46 + gaze} cy="53" r="3.4" fill="#fff" />
-            <circle cx={82 + gaze} cy="53" r="3.4" fill="#fff" />
-            <circle cx={38 + gaze} cy="62" r="1.8" fill="#fff" opacity="0.7" />
-            <circle cx={74 + gaze} cy="62" r="1.8" fill="#fff" opacity="0.7" />
+            <circle cx="46" cy="65" r="13.5" fill="#ffffff" stroke={LINE} strokeWidth="1.2" />
+            <circle cx="74" cy="65" r="13.5" fill="#ffffff" stroke={LINE} strokeWidth="1.2" />
+            <circle cx={46 + gaze} cy="65" r="9.5" fill={IRIS} />
+            <circle cx={74 + gaze} cy="65" r="9.5" fill={IRIS} />
+            <circle cx={46 + gaze} cy="68" r="9.5" fill={IRIS_RIM} opacity="0.3" />
+            <circle cx={74 + gaze} cy="68" r="9.5" fill={IRIS_RIM} opacity="0.3" />
+            <circle cx={46 + gaze} cy="65" r="5" fill={PUPIL} />
+            <circle cx={74 + gaze} cy="65" r="5" fill={PUPIL} />
+            {/* Kilau mata */}
+            <circle cx={42 + gaze} cy="60" r="3.6" fill="#fff" />
+            <circle cx={70 + gaze} cy="60" r="3.6" fill="#fff" />
+            <circle cx={50 + gaze} cy="70" r="2" fill="#fff" opacity="0.85" />
+            <circle cx={78 + gaze} cy="70" r="2" fill="#fff" opacity="0.85" />
           </>
         )}
 
-        {/* Short muzzle tucked under the eyes */}
-        <ellipse cx="60" cy="83" rx="13" ry="9" fill="#e3caae" />
-        <path d="M 60 78 L 56.5 82 Q 60 85, 63.5 82 Z" fill="#2b1810" />
+        {/* Hidung mungil */}
+        <ellipse cx="60" cy="84" rx="4" ry="3.2" fill={NOSE} />
 
-        {/* Mouth */}
+        {/* Mulut */}
         {mouthShape === 'open' ? (
           <>
-            <ellipse cx="60" cy="89" rx="6.5" ry="5.5" fill="#2b1810" />
-            <ellipse cx="60" cy="91" rx="3.5" ry="2.5" fill="#ff8fa3" opacity="0.6" />
+            <ellipse cx="60" cy="93" rx="6" ry="5" fill={MOUTH} />
+            <ellipse cx="60" cy="95" rx="3.2" ry="2.2" fill="#e79aa6" opacity="0.7" />
           </>
         ) : mouthShape === 'smile-big' ? (
-          <path d="M 52 85 Q 60 94, 68 85" stroke="#2b1810" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+          <path d="M 52 90 Q 60 99, 68 90" stroke={MOUTH} strokeWidth="2.2" fill="none" strokeLinecap="round" />
         ) : mouthShape === 'gentle' ? (
-          <path d="M 54 86 Q 60 90, 66 86" stroke="#2b1810" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+          <path d="M 54 90 Q 60 94, 66 90" stroke={MOUTH} strokeWidth="2.2" fill="none" strokeLinecap="round" />
         ) : mouthShape === 'small' ? (
-          <ellipse cx="60" cy="88" rx="3" ry="2.5" fill="#2b1810" />
+          <ellipse cx="60" cy="91" rx="2.6" ry="2.2" fill={MOUTH} />
         ) : (
-          <path d="M 55 86 Q 60 89.5, 65 86" stroke="#2b1810" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+          <>
+            <path d="M 54 89 Q 57 93, 60 89.5" stroke={MOUTH} strokeWidth="2" fill="none" strokeLinecap="round" />
+            <path d="M 60 89.5 Q 63 93, 66 89" stroke={MOUTH} strokeWidth="2" fill="none" strokeLinecap="round" />
+          </>
         )}
-
-        {/* Blush, kept clear of the eyes */}
-        <circle cx="34" cy="80" r="5" fill="#ff8fa3" opacity="0.4" />
-        <circle cx="86" cy="80" r="5" fill="#ff8fa3" opacity="0.4" />
 
         {/* Think bubbles when thinking */}
         {mood === 'think' && (
           <>
-            <circle cx="103" cy="24" r="5" fill="#fff" stroke="#2b1810" strokeWidth="1.5" opacity="0.8" />
-            <circle cx="112" cy="14" r="3" fill="#fff" stroke="#2b1810" strokeWidth="1.5" opacity="0.8" />
+            <circle cx="104" cy="20" r="5" fill="#fff" stroke={LINE} strokeWidth="1.4" opacity="0.85" />
+            <circle cx="113" cy="11" r="3" fill="#fff" stroke={LINE} strokeWidth="1.4" opacity="0.85" />
           </>
         )}
       </svg>
