@@ -4,6 +4,20 @@ import { translate } from '@/lib/i18n';
 
 export type TarsyMood = 'idle' | 'happy' | 'celebrate' | 'think' | 'encourage';
 
+/* Palet coklat hangat dengan mata biru. Coklatnya aman dari kesan lebah
+   selama iris tetap biru — yang dulu bikin terbaca sebagai lebah adalah
+   mata amber plus outline nyaris hitam, bukan warna bulunya. */
+const FUR = '#8d6647';
+const FUR_SHADE = '#6b4830';
+const EAR_INNER = '#c08a6d';
+const FACE = '#a87a58';
+const LINE = '#402a1c';
+const IRIS = '#2f4ab5';
+const IRIS_RIM = '#17246b';
+const PUPIL = '#0d1024';
+const NOSE = '#553321';
+const MOUTH = '#3a2416';
+
 export function TarsyMascot({ size = 120, mood = 'idle', lang, onClick, bubble = true, bubbleAlign = 'center' }: {
   size?: number;
   mood?: TarsyMood;
