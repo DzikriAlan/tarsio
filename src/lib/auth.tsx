@@ -23,6 +23,7 @@ type AuthState = {
   setLanguage: (lang: Language) => void;
   signUp: (username: string, password: string, lang: Language) => Promise<AuthResult>;
   signIn: (username: string, password: string) => Promise<AuthResult>;
+  signInWithGoogle: (lang: Language) => Promise<AuthResult>;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
 };
@@ -64,8 +65,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         .maybeSingle();
 
       if (!cancelled && !error && data) {
-        setProfile(data as Profile);
-        setLang((data as Profile).language_pref as Language);
+        const prof = data as Profile;
+        setProfile(prof);
+        setLang(prof.language_pref as Language);
+
+        // Akun Google baru selalu lahir dengan language_pref default. Kalau
+        // tamu sempat memilih bahasa lain sebelum login, terapkan sekali.
+        let storedLang: string | null = null;
+        try {
+          storedLang = window.localStorage.getItem('tarsio.langPref');
+        } catch {
+          storedLang = null;
+        }
+        if (
+          (storedLang === 'id' || storedLang === 'en') &&
+          storedLang !== prof.language_pref
+        ) {
+          setLang(storedLang);
+          await supabase
+            .from('profiles')
+            .update({ language_pref: storedLang })
+            .eq('id', session.user.id);
+        }
+        try {
+          window.localStorage.removeItem('tarsio.langPref');
+        } catch {
+          // abaikan
+        }
       }
       if (!cancelled) setLoading(false);
     })();
@@ -123,6 +149,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { error: null };
   }
 
+  // Google memakai email asli, jadi berbeda dari alur username → email sintetis.
+  // Supabase yang meng-handle redirect OAuth; profil dibuat oleh trigger
+  // handle_new_user dari metadata Google (nama + avatar). Bahasa akun baru
+  // ikut preferensi tamu lewat localStorage, dibaca lagi setelah redirect.
+  async function signInWithGoogle(lang: Language) {
+    try {
+      if (typeof window !== 'undefined') {
+        window.localStorage.setItem('tarsio.langPref', lang);
+      }
+    } catch {
+      // localStorage bisa diblokir (mode privat) — bukan alasan gagal login.
+    }
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo:
+          typeof window !== 'undefined' ? window.location.origin : undefined,
+        queryParams: { prompt: 'select_account' },
+      },
+    });
+    if (error) return { error: error.message, code: error.code };
+    return { error: null };
+  }
+
   async function signOut() {
     await supabase.auth.signOut();
     setProfile(null);
@@ -130,7 +180,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ session, profile, loading, language, setLanguage, signUp, signIn, signOut, refreshProfile }}>
+    <AuthContext.Provider value={{ session, profile, loading, language, setLanguage, signUp, signIn, signInWithGoogle, signOut, refreshProfile }}>
       {children}
     </AuthContext.Provider>
   );

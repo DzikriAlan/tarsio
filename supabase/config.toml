@@ -10,6 +10,17 @@ enable_signup = true
 # Nyalakan lagi bersama SMTP sendiri sebelum tarsio dibuka untuk publik.
 enable_confirmations = false
 
+# Login/daftar lewat Google. client_id & secret dibaca dari .env di root
+# (GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET). Di dashboard Supabase produksi,
+# isi nilai yang sama di Authentication → Providers → Google.
+[auth.external.google]
+enabled = true
+client_id = "env(GOOGLE_CLIENT_ID)"
+secret = "env(GOOGLE_CLIENT_SECRET)"
+# Biarkan kosong: Supabase memakai callback default /auth/v1/callback.
+redirect_uri = ""
+skip_nonce_check = false
+
 [functions.quest-result]
 verify_jwt = true
 
